@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+    <h1 id="keyCode"></h1>
+    <script type="text/javascript">
+        // keyboard listener
+        document.addEventListener("keydown", onDocumentKeyDown, false);
+        function onDocumentKeyDown(event) {
+            var keyCode = event.which;
+            console.log(keyCode);
+            document.getElementById("keyCode").innerHTML = keyCode;
+        };
+    </script>
+</html>
