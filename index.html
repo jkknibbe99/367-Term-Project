@@ -10,12 +10,14 @@
         <div style="display: inline; padding-right: 10px;">
             Mode:
             <select id="mode-select">
+                <option selected value="view">View</option>
                 <option value="drive">Drive</option>
-                <option value="view">View</option>
             </select>
         </div>
-        <p id="boat-speed" style="display: inline-block; width: 150px;">Speed: <span>0</span></p>
-        <p  id="throttle" style="display: inline;">Throttle: &#8595;S<input type="range" min="0" max="10" value="0" class="slider" id="myRange">W&#8593;</p>
+        <p id="boat-speed" style="display: none; width: 150px;">Speed: <span>0</span></p>
+        <p id="throttle" style="display: none; padding-right: 50px;">Throttle: &#8595;S<input type="range" min="0" max="10" value="0" class="slider" id="myRange">W&#8593;</p>
+        <p id="steering" style="display: none;">A &#8592; Steering &#8594; D</p>
+        <p id="orbit-controls" style="display: inline-block;">Orbit: Left-mouse-button | Pan: Right-mouse-button | Zoom: Scroll-wheel</p>
 
         <!-- Container - this is were the THREE model will be placed -->
         <div id="container"></div>
@@ -52,9 +54,13 @@
                     throttle_input_elem.value = throttle;
                     document.getElementById("boat-speed").style.display = "none";
                     document.getElementById("throttle").style.display = "none";
+                    document.getElementById("steering").style.display = "none";
+                    document.getElementById("orbit-controls").style.display = "inline-block";
                 } else if (mode == "drive") {
                     document.getElementById("boat-speed").style.display = "inline-block";
                     document.getElementById("throttle").style.display = "inline-block";
+                    document.getElementById("steering").style.display = "inline-block";
+                    document.getElementById("orbit-controls").style.display = "none";
                 }
                 
             }
@@ -122,16 +128,7 @@
                     boat_left_turn = true;
                 }
                 if (keyCode == 68) {  // D
-                    if (mode == "drive"){
-                        boat_right_turn = true;
-                    } else {
-                        mode = "drive";
-                        console.log(mode);
-                    }
-                }
-                if (keyCode == 86) {  // V
-                    mode = "view";
-                    console.log(mode);
+                    boat_right_turn = true;
                 }
                 if (keyCode == 87 || keyCode == 38) {  // W
                     if (throttle >= 10) {
