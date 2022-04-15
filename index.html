@@ -130,21 +130,25 @@
                 if (keyCode == 68) {  // D
                     boat_right_turn = true;
                 }
-                if (keyCode == 87 || keyCode == 38) {  // W
-                    if (throttle >= 10) {
-                        throttle = 10;
-                    } else {
-                        throttle += 1;
+                if (keyCode == 87 || keyCode == 38) {  // W ↑
+                    if (mode == "drive") {
+                        if (throttle >= 10) {
+                            throttle = 10;
+                        } else {
+                            throttle += 1;
+                        }
+                        throttle_input_elem.value = throttle;
                     }
-                    throttle_input_elem.value = throttle;
                 }
-                if (keyCode == 83 || keyCode == 40) {  // S
-                    if (throttle <= 0) {
-                        throttle = 0;
-                    } else {
-                        throttle -= 1;
+                if (keyCode == 83 || keyCode == 40) {  // S ↓
+                    if (mode == "drive") {
+                        if (throttle <= 0) {
+                            throttle = 0;
+                        } else {
+                            throttle -= 1;
+                        }
+                        throttle_input_elem.value = throttle;
                     }
-                    throttle_input_elem.value = throttle;
                 }
                 
             };
