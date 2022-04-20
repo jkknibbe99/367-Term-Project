@@ -184,7 +184,7 @@
 
             let container, stats;
             let camera, scene, renderer;
-            let controls, water, sun, box, boat;
+            let controls, water, sun, box, boat, terrain;
 
             init();
             animate();
@@ -298,6 +298,22 @@
                         boat.position.set(0, .1, 0);
                         boat.castShadow = true;
                         scene.add(boat)
+                    },
+                );
+
+                // Islands
+
+                var loader = new GLTFLoader();
+                loader.load(
+                    "./glb/terrain.glb",
+                    function (gltf) {
+                        var scale = 200;
+                        terrain = gltf.scene.children[0];
+                        // terrain.rotation.set(0, -1.5708, 0);
+                        terrain.scale.set(scale, scale, scale);
+                        terrain.position.set(0, -1, 0);
+                        terrain.castShadow = true;
+                        scene.add(terrain)
                     },
                 );
                 
