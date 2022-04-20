@@ -202,6 +202,7 @@
                 renderer.setPixelRatio(window.devicePixelRatio);
                 renderer.setSize(window.innerWidth, window.innerHeight);
                 renderer.toneMapping = THREE.ACESFilmicToneMapping;
+                renderer.outputEncoding = THREE.sRGBEncoding;  // Needed for gltf imports
                 container.appendChild(renderer.domElement);
 
                 // Create the scene and camera
@@ -308,15 +309,19 @@
                     "./glb/terrain.glb",
                     function (gltf) {
                         var scale = 200;
-                        terrain = gltf.scene.children[0];
-                        // terrain.rotation.set(0, -1.5708, 0);
+                        terrain = scene.children[0];
                         terrain.scale.set(scale, scale, scale);
                         terrain.position.set(0, -1, 0);
                         terrain.castShadow = true;
-                        scene.add(terrain)
-                    },
+                        scene.add(terrain);
+                    }
                 );
-                
+                // Island texture
+                let island_texture = new THREE.TextureLoader().load('textures/forest_texture.png');
+                let island_material = new THREE.MeshBasicMaterial( {map: island_texture});
+                // terrain.material = island_material;
+                // scene.add(terrain);
+
                 // Orbit controls
 
                 controls = new OrbitControls(camera, renderer.domElement);
