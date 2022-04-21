@@ -6,22 +6,48 @@
     </head>
     <body>
         
-        <h3 style="display: inline; padding-right: 10px;">367 Term Project</h3>
-        <div style="display: inline; padding-right: 10px;">
-            Mode:
-            <select id="mode-select">
-                <option selected value="view">View</option>
-                <option value="drive">Drive</option>
-            </select>
-        </div>
-        <p id="boat-speed" style="display: none; width: 150px;">Speed: <span>0</span></p>
-        <p id="throttle" style="display: none; padding-right: 50px;">Throttle: &#8595;S<input type="range" min="0" max="10" value="0" class="slider" id="myRange">W&#8593;</p>
-        <p id="steering" style="display: none;">A &#8592; Steering &#8594; D</p>
-        <p id="orbit-controls" style="display: inline-block;">Orbit: Left-mouse-button | Pan: Right-mouse-button | Zoom: Scroll-wheel</p>
-
         <!-- Container - this is were the THREE model will be placed -->
-        <div id="container"></div>
+        <div id="container" style="position: fixed; top: 0;"></div>
+
+        <!-- Top Menu Bar -->
+        <div style="
+            position: fixed;
+            left: 20px;
+            /* top: 0px; */
+            ">
+            <h3 style="display: inline; padding-right: 10px;">367 Term Project</h3>
+            <div style="display: inline; padding-right: 10px;">
+                Mode:
+                <select id="mode-select">
+                    <option selected value="view">View</option>
+                    <option value="drive">Drive</option>
+                </select>
+            </div>
+            <p id="boat-speed" style="display: none; width: 150px;">Speed: <span>0</span></p>
+            <p id="throttle" style="display: none; padding-right: 50px;">Throttle: &#8595;S<input type="range" min="0" max="10"
+                    value="0" class="slider" id="myRange">W&#8593;</p>
+            <p id="steering" style="display: none;">A &#8592; Steering &#8594; D</p>
+            <p id="orbit-controls" style="display: inline-block;">Orbit: Left-mouse-button | Pan: Right-mouse-button | Zoom:
+                Scroll-wheel</p>
+        </div>
         
+        <!-- Sun options -->
+        <div style="
+                            position: fixed;
+                            right: 20px;
+                            top: 60px;
+                            background-color: black;
+                            opacity: 50%;
+                            text-align: center;
+                            padding: 10px;
+                            padding-top: 3px;
+                            border-radius: 10px;">
+            <p style="color: white;">Sun Movement</p>
+            <!-- <input type="range" min="-20" max="90" value="2" class="slider" id="sunHeight"> -->
+            <!-- <button id="reset-sun">Reset</button> -->
+            <input type="checkbox" id="sun-auto" value="0">
+        </div>
+
         <!-- Import map -->
         <script type="importmap">
             {
@@ -179,15 +205,19 @@
 
             import { OrbitControls } from './js/OrbitControls.js';  // import Orbit controls script
             import { GLTFLoader } from './js/GLTFLoader.js';  // import GLTFLoader.js
+            import { DRACOLoader } from './js/DRACOLoader.js';  // import DRACOLoader.js
             import { Water } from './js/Water.js';  // import Water shader
             import { Sky } from './js/Sky.js';  // import Sky shader
 
             let container, stats;
             let camera, scene, renderer;
-            let controls, water, sun, box, boat, terrain;
+            let controls, water, box, boat, terrain;
+            let sun, sun_parameters, updateSun;
 
+            
             init();
             animate();
+            
 
             // Initialize everything
             function init() {
@@ -255,17 +285,18 @@
                 skyUniforms['mieCoefficient'].value = 0.005;
                 skyUniforms['mieDirectionalG'].value = 0.8;
 
-                const parameters = {
-                    elevation: 5,
+                sun_parameters = {
+                    auto_move: true,
+                    elevation: -3,
                     azimuth: 180
                 };
 
                 const pmremGenerator = new THREE.PMREMGenerator(renderer);
 
-                function updateSun() {
+                updateSun = function() {
 
-                    const phi = THREE.MathUtils.degToRad(90 - parameters.elevation);
-                    const theta = THREE.MathUtils.degToRad(parameters.azimuth);
+                    const phi = THREE.MathUtils.degToRad(90 - sun_parameters.elevation);
+                    const theta = THREE.MathUtils.degToRad(sun_parameters.azimuth);
 
                     sun.setFromSphericalCoords(1, phi, theta);
 
@@ -290,7 +321,7 @@
 
                 var loader = new GLTFLoader();
                 loader.load(
-                    "./glb/boat.glb",
+                    "./gltf/boat.glb",
                     function (gltf) {
                         var scale = 5.6;
                         boat = gltf.scene.children[0];
@@ -298,6 +329,7 @@
                         boat.scale.set(scale, scale, scale);
                         boat.position.set(0, .1, 0);
                         boat.castShadow = true;
+                        boat.receiveShadow = true;
                         scene.add(boat)
                     },
                 );
@@ -305,22 +337,25 @@
                 // Islands
 
                 var loader = new GLTFLoader();
+                const dracoLoader = new DRACOLoader();
+                dracoLoader.setDecoderPath('/js/draco/');
+                loader.setDRACOLoader(dracoLoader);
                 loader.load(
-                    "./glb/terrain.glb",
+                    "./gltf/terrain.glb",
                     function (gltf) {
-                        var scale = 200;
-                        terrain = scene.children[0];
+                        var scale = 400;
+                        terrain = gltf.scene.children[0];
                         terrain.scale.set(scale, scale, scale);
-                        terrain.position.set(0, -1, 0);
+                        terrain.position.set(1000, -0.1, 0);
+                        terrain.receiveShadow = true;
                         terrain.castShadow = true;
+                        // Island texture
+                        let island_texture = new THREE.TextureLoader().load('textures/forest_texture2.png');
+                        let island_material = new THREE.MeshStandardMaterial({ map: island_texture, metalness: 1, roughness: 2 });
+                        terrain.material = island_material;
                         scene.add(terrain);
                     }
                 );
-                // Island texture
-                let island_texture = new THREE.TextureLoader().load('textures/forest_texture.png');
-                let island_material = new THREE.MeshBasicMaterial( {map: island_texture});
-                // terrain.material = island_material;
-                // scene.add(terrain);
 
                 // Orbit controls
 
@@ -333,7 +368,8 @@
                 // Add event listener for browser window resize
 
                 window.addEventListener('resize', onWindowResize);
-
+                
+                return 'init done';
             }
 
             // Adjust camera and view window when browser window is resized
@@ -346,6 +382,7 @@
 
             }
 
+
             // Animate the scene
             function animate() {
 
@@ -356,7 +393,8 @@
                 if (mode == "drive") {
                     // Update camera controls
                     controls.target.set(boat.position.x, boat.position.y, boat.position.z);
-                    controls.maxDistance = 60;
+                    controls.target.y += 10;
+                    controls.maxDistance = 100;
                     camera.position.y = 20;
                     controls.update();
                 } else if (mode == "view") {
@@ -381,14 +419,18 @@
                 boat.position.y += vector.y;
                 boat.position.z += vector.z;
 
-
-                const time = performance.now() * 0.001;
-
                 // Boat bobbing
+                const time = performance.now() * 0.001;
                 // boat.position.y = Math.sin(time) * 0.5 - 0.25;
 
                 // Water movement
                 water.material.uniforms['time'].value += 1.0 / 60.0;
+
+                // Sun movement
+                if (document.getElementById('sun-auto').checked) {
+                    sun_parameters.elevation += 0.005;
+                    updateSun();
+                }
 
                 render();  // render scene
             }
@@ -399,6 +441,8 @@
             }
 
         </script>
+
+        
 
     </body>
 </html>

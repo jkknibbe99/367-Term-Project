@@ -1,0 +1,137 @@
+<html>
+
+<head></head>
+
+<body>
+
+<!-- Container - this is were the THREE model will be placed -->
+<div id="container"></div>
+
+<!-- Import map -->
+<script type="importmap">
+    {
+        "imports": {
+            "three" : "./js/three.module.js"
+        }
+    }
+</script>
+
+<script type="module">
+    import * as THREE from 'three';  // import Three.js
+
+    import { OrbitControls } from './js/OrbitControls.js';  // import Orbit controls script
+    import { GLTFLoader } from './js/GLTFLoader.js';  // import GLTFLoader.js
+    import { DRACOLoader } from './js/DRACOLoader.js';  // import DRACOLoader.js
+    import { Water } from './js/Water.js';  // import Water shader
+    import { Sky } from './js/Sky.js';  // import Sky shader
+
+    let container, stats;
+    let camera, scene, renderer, light;
+    let controls, water, sun, box, boat, terrain;
+
+    // Initialize scene
+    async function init() {
+         // Find the container div in the HTML
+
+        container = document.getElementById('container');
+
+        // Create the renderer and add place in the container
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.outputEncoding = THREE.sRGBEncoding;  // Needed for gltf imports
+        container.appendChild(renderer.domElement);
+
+        // Create the scene and camera
+
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x277a51);
+
+        camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 20000);
+        camera.position.set(30, 30, 100);
+
+        // Island texture
+        let island_texture = new THREE.TextureLoader().load('textures/forest_texture2.png');
+        let island_material = new THREE.MeshStandardMaterial({ map: island_texture });
+
+        // Islands
+        var loader = new GLTFLoader();
+        const dracoLoader = new DRACOLoader();
+        dracoLoader.setDecoderPath('/js/draco/');
+        loader.setDRACOLoader(dracoLoader);
+        loader.load(
+            "./gltf/terrain2.gltf",
+            function (gltf) {
+                var scale = 70;
+                terrain = gltf.scene.children[0];
+                terrain.scale.set(scale, scale, scale);
+                terrain.position.set(0, 0, 0);
+                terrain.receiveShadow = true;
+                terrain.castShadow = true;
+                terrain.material = island_material;
+                scene.add(terrain);
+                console.log('terrain setup');
+            }
+        );
+        
+
+        // Cactus texture (box)
+        var textureLoader = new THREE.TextureLoader();
+        var cactus = textureLoader.load('textures/forest_texture.png');
+        cactus.wrapS = THREE.RepeatWrapping;
+        cactus.wrapT = THREE.RepeatWrapping;
+        cactus.repeat.set(4 / 2, 4 / 2);
+
+        // Add a box to the scene
+        var boxGeometry = new THREE.BoxGeometry(4, 4, 4);
+        var boxMaterial = new THREE.MeshStandardMaterial({
+            map: cactus,
+            metalness: 0,
+            roughness: 1
+        });
+        var boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
+        boxMesh.position.set(40, 10, 0);
+        boxMesh.receiveShadow = true;
+        boxMesh.castShadow = true;
+        scene.add(boxMesh);
+        // boxes.push(boxMesh);
+
+        // Add the Lights
+        // Ambient light is used to prevent the scene
+        // from ever being too dark.
+        var ambient = new THREE.AmbientLight(0x333333);
+        scene.add(ambient);
+        // A point light acts like a light bulb, sending light
+        // in all directions.
+        var lightIntensity = .7;
+        light = new THREE.PointLight(0xffffff, lightIntensity);
+        light.position.set(0, 15, 0);
+        scene.add(light);
+
+        // Enable Shadows
+        // The floor will only receive shadows, but the box can both
+        // cast and receive shadows.
+        renderer.shadowMap.enabled = true;
+        // terrain.receiveShadow = true;
+        // terrain.castShadow = true;
+        light.castShadow = true;
+    }
+    
+    init();
+
+    // update() is called every frame.
+    // We rotate each box around the X-axis at slightly
+    // different speeds to create a neat pattern.
+    function update() {
+        light.position.x += 0.1;
+        renderer.render(scene, camera);  // Render scene
+        requestAnimationFrame(update);   // callback to update() to animate the scene
+    }
+    update();
+</script>
+
+</body>
+
+</html>
