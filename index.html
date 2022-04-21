@@ -32,20 +32,14 @@
         </div>
         
         <!-- Sun options -->
-        <div style="
-                            position: fixed;
-                            right: 20px;
-                            top: 60px;
-                            background-color: black;
-                            opacity: 50%;
-                            text-align: center;
-                            padding: 10px;
-                            padding-top: 3px;
-                            border-radius: 10px;">
+        <div id="sun-options-container">
             <p style="color: white;">Sun Movement</p>
             <!-- <input type="range" min="-20" max="90" value="2" class="slider" id="sunHeight"> -->
             <!-- <button id="reset-sun">Reset</button> -->
-            <input type="checkbox" id="sun-auto" value="0">
+            <label class="checkmark-container">
+                <input type="checkbox" id="sun-auto" checked>
+                <span class="checkmark"></span>
+            </label>
         </div>
 
         <!-- Import map -->
