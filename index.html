@@ -1,20 +1,18 @@
 <!DOCTYPE html>
 <html>
+
     <head>
         <title>367 Term Project</title>
         <link rel="stylesheet" href="main.css">
     </head>
+
     <body>
         
-        <!-- Container - this is were the THREE model will be placed -->
-        <div id="container" style="position: fixed; top: 0;"></div>
+        <!-- Container - this is were the THREE scene will be rendered -->
+        <div id="three-container" style="position: fixed; top: 0;"></div>
 
         <!-- Top Menu Bar -->
-        <div style="
-            position: fixed;
-            left: 20px;
-            /* top: 0px; */
-            ">
+        <div id="top-menu-bar">
             <h3 style="display: inline; padding-right: 10px;">367 Term Project</h3>
             <div style="display: inline; padding-right: 10px;">
                 Mode:
@@ -33,13 +31,22 @@
         
         <!-- Sun options -->
         <div id="sun-options-container">
-            <p style="color: white;">Sun Movement</p>
-            <!-- <input type="range" min="-20" max="90" value="2" class="slider" id="sunHeight"> -->
-            <!-- <button id="reset-sun">Reset</button> -->
-            <label class="checkmark-container">
-                <input type="checkbox" id="sun-auto" checked>
-                <span class="checkmark"></span>
-            </label>
+            <p id="sun-title">Sun</p>
+            <div class="sun-op-row">
+                <p class="label">Move</p>
+                <label class="checkmark-container">
+                    <input type="checkbox" id="sun-move" checked>
+                    <span class="checkmark"></span>
+                </label>
+            </div>
+            <div class="sun-op-row">
+                <p class="label">Height</p>
+                <input type="range" min="-3" max="183" value="-3" class="slider" id="sun-height-slider">
+            </div>
+            <div class="sun-op-row">
+                <p class="label">Azimuth</p>
+                <input type="range" min="0" max="360" value="180" class="slider" id="sun-azimuth-slider">
+            </div>
         </div>
 
         <!-- Import map -->
@@ -52,391 +59,10 @@
         </script>
 
         <!-- Boat Driving controls -->
-        <script type="text/javascript">
-            
-            let mode = "view";
-            let boat_speed = 0;
-            let boat_top_speed = 2;
-            let throttle = 0;
-            let throttle_input_elem = document.getElementById("throttle").getElementsByTagName("input")[0];
-            let boat_accel = false;
-            let boat_turn_deg = 0;
-            let boat_left_turn = false;
-            let boat_right_turn = false;
-            let boat_max_turn = 1;
-
-            // Mode listener
-            document.getElementById("mode-select").addEventListener("change", modeListener, false);
-            function modeListener(event) {
-                mode = this.value;
-                if (mode == "view") {
-                    throttle = 0;
-                    throttle_input_elem.value = throttle;
-                    document.getElementById("boat-speed").style.display = "none";
-                    document.getElementById("throttle").style.display = "none";
-                    document.getElementById("steering").style.display = "none";
-                    document.getElementById("orbit-controls").style.display = "inline-block";
-                } else if (mode == "drive") {
-                    document.getElementById("boat-speed").style.display = "inline-block";
-                    document.getElementById("throttle").style.display = "inline-block";
-                    document.getElementById("steering").style.display = "inline-block";
-                    document.getElementById("orbit-controls").style.display = "none";
-                }
-                
-            }
-
-            // update boat speed
-            function updateBoatSpeed() {
-                let boat_max_speed = throttle / (10/boat_top_speed);
-                if (boat_max_speed > boat_speed) {
-                    boat_accel = true;
-                } else {
-                    boat_accel = false;
-                }
-                if (boat_accel) {
-                    if (boat_speed < boat_max_speed) {
-                        boat_speed += 0.006;
-                    } else {
-                        boat_speed = boat_max_speed;
-                    }
-                } else {
-                    if (Math.abs(boat_speed - boat_max_speed) < 0.01) {
-                        boat_speed = boat_max_speed;
-                    } else {
-                        boat_speed -= 0.005;
-                    }
-                }
-                function round(value, decimals) {
-                    return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
-                }
-                document.getElementById("boat-speed").getElementsByTagName("span")[0].innerHTML = round(boat_speed * 15, 2);
-            }
-
-            // Throttle listener
-            throttle_input_elem.addEventListener("change", throttleListener, false);
-            function throttleListener(event) {
-                throttle = throttle_input_elem.value;
-                console.log("test");
-            }
-
-            // update boat turning
-            function updateBoatTurn() {
-                if(boat_speed > boat_max_turn){
-                    if (boat_left_turn) {
-                        boat_turn_deg = boat_max_turn;
-                    } else if (boat_right_turn) {
-                        boat_turn_deg = -boat_max_turn;
-                    } else {
-                        boat_turn_deg = 0;
-                    }
-                } else {
-                    if (boat_left_turn) {
-                        boat_turn_deg = boat_speed;
-                    } else if (boat_right_turn) {
-                        boat_turn_deg = -boat_speed;
-                    } else {
-                        boat_turn_deg = 0;
-                    }
-                }
-            }
-
-            // keydown listener
-            document.addEventListener("keydown", onDocumentKeyDown, false);
-            function onDocumentKeyDown(event) {
-                var keyCode = event.which;
-                if (keyCode == 65) {  // A
-                    boat_left_turn = true;
-                }
-                if (keyCode == 68) {  // D
-                    boat_right_turn = true;
-                }
-                if (keyCode == 87 || keyCode == 38) {  // W ↑
-                    if (mode == "drive") {
-                        if (throttle >= 10) {
-                            throttle = 10;
-                        } else {
-                            throttle += 1;
-                        }
-                        throttle_input_elem.value = throttle;
-                    }
-                }
-                if (keyCode == 83 || keyCode == 40) {  // S ↓
-                    if (mode == "drive") {
-                        if (throttle <= 0) {
-                            throttle = 0;
-                        } else {
-                            throttle -= 1;
-                        }
-                        throttle_input_elem.value = throttle;
-                    }
-                }
-                
-            };
-            
-            // keyup listener
-            document.addEventListener("keyup", onDocumentKeyUp, false);
-            function onDocumentKeyUp(event) {
-                var keyCode = event.which;
-                if (keyCode == 65) {  // A
-                    boat_left_turn = false;
-                }
-                if (keyCode == 68) {  // D
-                    boat_right_turn = false;
-                }
-                if (keyCode == 65) {  // A
-                    boat_left_turn = false;
-                }
-                if (keyCode == 68) {  // D
-                    boat_right_turn = false;
-                }
-            };
-        </script>
+        <script type="text/javascript" src="boat_controls.js"></script>
 
         <!-- THREE scene creation script -->
-        <script type="module">
-
-            import * as THREE from 'three';  // import Three.js
-
-            import { OrbitControls } from './js/OrbitControls.js';  // import Orbit controls script
-            import { GLTFLoader } from './js/GLTFLoader.js';  // import GLTFLoader.js
-            import { DRACOLoader } from './js/DRACOLoader.js';  // import DRACOLoader.js
-            import { Water } from './js/Water.js';  // import Water shader
-            import { Sky } from './js/Sky.js';  // import Sky shader
-
-            let container, stats;
-            let camera, scene, renderer;
-            let controls, water, box, boat, terrain;
-            let sun, sun_parameters, updateSun;
-
-            
-            init();
-            animate();
-            
-
-            // Initialize everything
-            function init() {
-
-                // Find the container div in the HTML
-
-                container = document.getElementById('container');
-
-                // Create the renderer and add place in the container
-
-                renderer = new THREE.WebGLRenderer();
-                renderer.setPixelRatio(window.devicePixelRatio);
-                renderer.setSize(window.innerWidth, window.innerHeight);
-                renderer.toneMapping = THREE.ACESFilmicToneMapping;
-                renderer.outputEncoding = THREE.sRGBEncoding;  // Needed for gltf imports
-                container.appendChild(renderer.domElement);
-
-                // Create the scene and camera
-
-                scene = new THREE.Scene();
-
-                camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 1, 20000);
-                camera.position.set(30, 30, 100);
-
-                // Sun
-
-                sun = new THREE.Vector3();
-
-                // Water
-
-                const waterGeometry = new THREE.PlaneGeometry(10000, 10000);
-
-                water = new Water(
-                    waterGeometry,
-                    {
-                        textureWidth: 512,
-                        textureHeight: 512,
-                        waterNormals: new THREE.TextureLoader().load('textures/waternormals.jpg', function (texture) {
-
-                            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-
-                        }),
-                        sunDirection: new THREE.Vector3(),
-                        sunColor: 0xffffff,
-                        waterColor: 0x001e0f,
-                        distortionScale: 3.7,
-                        fog: scene.fog !== undefined
-                    }
-                );
-
-                water.rotation.x = - Math.PI / 2;
-
-                scene.add(water);
-
-                // Skybox
-
-                const sky = new Sky();
-                sky.scale.setScalar(10000);
-                scene.add(sky);
-
-                const skyUniforms = sky.material.uniforms;
-
-                skyUniforms['turbidity'].value = 10;
-                skyUniforms['rayleigh'].value = 2;
-                skyUniforms['mieCoefficient'].value = 0.005;
-                skyUniforms['mieDirectionalG'].value = 0.8;
-
-                sun_parameters = {
-                    auto_move: true,
-                    elevation: -3,
-                    azimuth: 180
-                };
-
-                const pmremGenerator = new THREE.PMREMGenerator(renderer);
-
-                updateSun = function() {
-
-                    const phi = THREE.MathUtils.degToRad(90 - sun_parameters.elevation);
-                    const theta = THREE.MathUtils.degToRad(sun_parameters.azimuth);
-
-                    sun.setFromSphericalCoords(1, phi, theta);
-
-                    sky.material.uniforms['sunPosition'].value.copy(sun);
-                    water.material.uniforms['sunDirection'].value.copy(sun).normalize();
-
-                    scene.environment = pmremGenerator.fromScene(sky).texture;
-
-                }
-
-                updateSun();
-
-                // Box
-
-                const boxGeometry = new THREE.BoxGeometry(30, 30, 30);
-                const boxMaterial = new THREE.MeshStandardMaterial({ roughness: 0 });
-
-                box = new THREE.Mesh(boxGeometry, boxMaterial);
-                // scene.add(box);
-
-                // Boat
-
-                var loader = new GLTFLoader();
-                loader.load(
-                    "./gltf/boat.glb",
-                    function (gltf) {
-                        var scale = 5.6;
-                        boat = gltf.scene.children[0];
-                        boat.rotation.set(0, -1.5708, 0);
-                        boat.scale.set(scale, scale, scale);
-                        boat.position.set(0, .1, 0);
-                        boat.castShadow = true;
-                        boat.receiveShadow = true;
-                        scene.add(boat)
-                    },
-                );
-
-                // Islands
-
-                var loader = new GLTFLoader();
-                const dracoLoader = new DRACOLoader();
-                dracoLoader.setDecoderPath('/js/draco/');
-                loader.setDRACOLoader(dracoLoader);
-                loader.load(
-                    "./gltf/terrain.glb",
-                    function (gltf) {
-                        var scale = 400;
-                        terrain = gltf.scene.children[0];
-                        terrain.scale.set(scale, scale, scale);
-                        terrain.position.set(1000, -0.1, 0);
-                        terrain.receiveShadow = true;
-                        terrain.castShadow = true;
-                        // Island texture
-                        let island_texture = new THREE.TextureLoader().load('textures/forest_texture2.png');
-                        let island_material = new THREE.MeshStandardMaterial({ map: island_texture, metalness: 1, roughness: 2 });
-                        terrain.material = island_material;
-                        scene.add(terrain);
-                    }
-                );
-
-                // Orbit controls
-
-                controls = new OrbitControls(camera, renderer.domElement);
-                controls.maxPolarAngle = Math.PI * 0.495;
-                controls.target.set(0, 10, 0);
-                controls.minDistance = 40.0;
-                controls.update();
-
-                // Add event listener for browser window resize
-
-                window.addEventListener('resize', onWindowResize);
-                
-                return 'init done';
-            }
-
-            // Adjust camera and view window when browser window is resized
-            function onWindowResize() {
-
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-
-                renderer.setSize(window.innerWidth, window.innerHeight);
-
-            }
-
-
-            // Animate the scene
-            function animate() {
-
-                // Callback to animate
-                requestAnimationFrame(animate);
-
-                // check mode
-                if (mode == "drive") {
-                    // Update camera controls
-                    controls.target.set(boat.position.x, boat.position.y, boat.position.z);
-                    controls.target.y += 10;
-                    controls.maxDistance = 100;
-                    camera.position.y = 20;
-                    controls.update();
-                } else if (mode == "view") {
-                    controls.maxDistance = 200;
-                    controls.update();
-                }
-
-                // Move boat
-                updateBoatSpeed();
-                updateBoatTurn();
-
-                // direction vector for movement
-                boat.rotation.y += THREE.MathUtils.degToRad(boat_turn_deg);
-                var matrix = new THREE.Matrix4();
-                matrix.extractRotation(boat.matrix);
-                var direction = new THREE.Vector3(0, 0, 1);
-                direction = new THREE.Vector3(0, 0, -1).applyQuaternion(boat.quaternion);
-
-                // scalar to simulate speed
-                var vector = direction.multiplyScalar(boat_speed, boat_speed, boat_speed);
-                boat.position.x += vector.x;
-                boat.position.y += vector.y;
-                boat.position.z += vector.z;
-
-                // Boat bobbing
-                const time = performance.now() * 0.001;
-                // boat.position.y = Math.sin(time) * 0.5 - 0.25;
-
-                // Water movement
-                water.material.uniforms['time'].value += 1.0 / 60.0;
-
-                // Sun movement
-                if (document.getElementById('sun-auto').checked) {
-                    sun_parameters.elevation += 0.005;
-                    updateSun();
-                }
-
-                render();  // render scene
-            }
-
-            // Render the scene
-            function render() {
-                renderer.render(scene, camera);
-            }
-
-        </script>
-
-        
+        <script type="module" src="scene.js"></script>
 
     </body>
 </html>
