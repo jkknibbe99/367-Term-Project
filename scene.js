@@ -205,6 +205,9 @@ function animate() {
     } else
     if (document.getElementById('sun-move').checked && !manual_sun_change) {
         sun_parameters.elevation += 0.005;
+        if (sun_parameters.elevation > 183) {  // Move sun back to opposite side immediately after sunset
+            sun_parameters.elevation = -3;
+        }
         updateSun();
         if (Math.abs(parseInt(sun_parameters.elevation) - sun_parameters.elevation) < 0.01) {
             elevation_slider.value = sun_parameters.elevation;
