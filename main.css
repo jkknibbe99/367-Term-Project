@@ -1,26 +1,54 @@
-#container {
+/* The threejs canvas container */
+#three-container {
     position: fixed;
     left: 0px;
 }
 
+/* The top menu bar */
+#top-menu-bar {
+    position: fixed;
+    left: 20px;
+}
+
+/* Sun options container */
 #sun-options-container {
     position: fixed;
     right: 20px;
     top: 60px;
     background-color: black;
+    color: white;
     opacity: 50%;
-    text-align: center;
+    /* text-align: center; */
     padding: 10px;
     padding-top: 0px;
     padding-bottom: 15px;
     border-radius: 10px;
 }
 
+#sun-title {
+    text-align: center;
+}
+
+.sun-op-row {
+    padding-bottom: 10px;
+}
+
+#sun-options-container .label {
+    font-size: x-small;
+    display: inline;
+    padding-right: 10px;
+}
+
+#sun-options-container .slider {
+    display: inline;
+}
+
 /* The container */
 .checkmark-container {
-    /* display: block; */
+    display: inline;
     position: relative;
     padding-left: 25px;
+    margin-left: 40px;
     margin-bottom: 12px;
     cursor: pointer;
     font-size: 22px;
