@@ -10,7 +10,7 @@ I have found that the easiest way to run it locally is on Visual Studio Code usi
 
 ## Summary
 This Project was created using a combination of Blender and Three.js.\
-Blender was used to create the boat model, as well as the island terrain. The island terrain specifically used the TXA ANT Landscape addon to create randomly generated terrain and textures. All these models were then exported as gltf's and imported into the Three.js script using a GLTFLoader module.\
+Blender was used to create the boat model, as well as the island terrain. The island terrain specifically used the TXA ANT Landscape addon to create noise generated terrain and textures. All these models were then exported as gltf's and imported into the Three.js script using a GLTFLoader module.\
 The water, sky, and sun were created using Three.js shaders and waternormals.\
 The UI was created using basic HTML and CSS.
 
@@ -20,3 +20,12 @@ When in View mode, you can orbit the scene by holding down the left mouse button
 ### Boat Controls
 When in Drive mode, you can increase the throttle using the 'W' or up arrow key and you can decrease throttle using the 'S' or down arrow key.
 Steer left and right using 'A' and 'D' respectively. The left and right arrow keys work as well.
+
+## Future Work
+This project is still a work on progress. There are a few items that I would like to eventually see implemented.
+- Boat/Land Collision
+- Map boundaries
+- More realistic boat acceleration and turning physics
+- Waves
+- Boat motor and person models
+- More realistic nightime shaders
