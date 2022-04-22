@@ -1,4 +1,5 @@
 
+// Globals
 let mode = "view";
 let boat_speed = 0;
 let boat_top_speed = 2;
@@ -63,7 +64,7 @@ function throttleListener(event) {
     throttle = throttle_input_elem.value;
 }
 
-// update boat turning
+// Update boat turning
 function updateBoatTurn() {
     if (boat_speed > boat_max_turn) {
         if (boat_left_turn) {
@@ -84,14 +85,14 @@ function updateBoatTurn() {
     }
 }
 
-// keydown listener
+// Keydown listener
 document.addEventListener("keydown", onDocumentKeyDown, false);
 function onDocumentKeyDown(event) {
     var keyCode = event.which;
-    if (keyCode == 65 || keyCode == 37) {  // A
+    if (keyCode == 65 || keyCode == 37) {  // A ←
         boat_left_turn = true;
     }
-    if (keyCode == 68 || keyCode == 39) {  // D
+    if (keyCode == 68 || keyCode == 39) {  // D →
         boat_right_turn = true;
     }
     if (keyCode == 87 || keyCode == 38) {  // W ↑
@@ -117,14 +118,14 @@ function onDocumentKeyDown(event) {
 
 };
 
-// keyup listener
+// Keyup listener
 document.addEventListener("keyup", onDocumentKeyUp, false);
 function onDocumentKeyUp(event) {
     var keyCode = event.which;
-    if (keyCode == 65 || keyCode == 37) {  // A
+    if (keyCode == 65 || keyCode == 37) {  // A ←
         boat_left_turn = false;
     }
-    if (keyCode == 68 || keyCode == 39) {  // D
+    if (keyCode == 68 || keyCode == 39) {  // D →
         boat_right_turn = false;
     }
 };
