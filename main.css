@@ -25,20 +25,24 @@
     border-radius: 10px;
 }
 
+/* Sun options box title */
 #sun-title {
     text-align: center;
 }
 
+/* Sun options box option row */
 .sun-op-row {
     padding-bottom: 10px;
 }
 
+/* Sun option label */
 #sun-options-container .label {
     font-size: x-small;
     display: inline;
     padding-right: 10px;
 }
 
+/* Sun option slider */
 #sun-options-container .slider {
     display: inline;
 }
